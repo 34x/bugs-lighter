@@ -8,8 +8,18 @@ Simple usage example:
 node index.js init --config ./config.json
 # you will have to tap on the hue bridge button once offered
 
+# edit your config.json file
+
 # after setup ping the first light
 node index.js ping 1 --config ./config.json
+
+# if the light blinked you are ready to go
+# add script to your crontab (remember to use correct paths for every part of the cron job)
+
+*/1 * * * * node index.js --config ./config.json
+
+# By default sentry will check for error happened for the last 2 minutes
+# in that case the script will fire configured light (see the config.json for more details)
 
 ```
 
