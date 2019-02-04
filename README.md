@@ -5,7 +5,9 @@ Fire lights according to configured evens (for example sentry error received)
 Simple usage example:
 
 ```
-node index.js init --config ./config.json
+git clone git@github.com:34x/bugs-lighter.git
+cd bugs-lighter
+node index.js init --config ./configs/config.json
 # you will have to tap on the hue bridge button once offered
 
 # edit your config.json file
