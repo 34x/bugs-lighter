@@ -1,6 +1,6 @@
 {
-  "name": "light_notifier",
-  "version": "1.0.0",
+  "name": "bugs-lighter",
+  "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
