@@ -30,17 +30,27 @@ const triggerLamp = async (inParams) => {
   if (!!params.state) {
     await hueApi.setLightState(params.bulb, params.state)
   } else {
+    const offTransition = 400;
+    const offState = hue.lightState.create().on(false).transition(offTransition);
+    const retry = params.retry || { count: 1, delay: 500 } ;
     const rgb = params.rgb;
     const on = params.on || !!rgb;
-    let state = hue.lightState.create().on(on);
+    const onTransition = 200;
+    let state = hue.lightState.create().on(on).transition(onTransition);
 
     if (on) {
       state = state.rgb(rgb.r, rgb.g, rgb.b)
                    .brightness(params.brightness || 100)
     }
 
-
-    await hueApi.setLightState(params.bulb, state)
+    for (let i = 0; i < retry.count; i++) {
+      if (i > 0) {
+        await hueApi.setLightState(params.bulb, offState);
+        await utils.delay(retry.delay + offTransition);
+      }
+      await hueApi.setLightState(params.bulb, state);
+      await utils.delay(onTransition);
+    }
   }
 
 };
