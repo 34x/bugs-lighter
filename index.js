@@ -182,11 +182,19 @@ const init = async (configFilename) => {
       username: undefined,
     },
     states: {
-      error: {
+      fatal: {
         callback: 'triggerLamp',
         params: {
           rgb: { r: 255, g: 0, b: 0},
           brightness: 100,
+          retry: { count: 12, delay: 100 },
+        },
+      },
+      error: {
+        callback: 'triggerLamp',
+        params: {
+          rgb: { r: 255, g: 0, b: 0},
+          brightness: 50,
         }
       },
       '*': {
@@ -209,6 +217,10 @@ const init = async (configFilename) => {
           'project': '...'
         },
         'states': {
+          fatal: {
+            parent: 'fatal',
+            params: { bulb: 8 }
+          },
           error: {
             parent: 'error',
             params: { bulb: 8 }
