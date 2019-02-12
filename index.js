@@ -13,6 +13,7 @@ if (!configFile) {
   return;
 }
 
+const callbacks = {};
 const isInit = 'init' === cmd;
 const config = isInit ? null : require(configFile);
 
@@ -27,6 +28,11 @@ const findBridge = async () => {
 const triggerLamp = async (inParams) => {
   const params = inParams || {};
   console.log('triggerLamp: ', params);
+
+  if (!!params.delay) {
+    await utils.delay(params.delay);
+  }
+
   if (!!params.state) {
     await hueApi.setLightState(params.bulb, params.state)
   } else {
@@ -52,8 +58,22 @@ const triggerLamp = async (inParams) => {
       await utils.delay(onTransition);
     }
   }
-
 };
+
+callbacks['triggerLamp'] = triggerLamp;
+
+const triggerSequence = async (params) => {
+  const sequence = params.sequence;
+
+  for (const idx in sequence) {
+    const item = sequence[idx]
+    const cb = item.callback;
+    const cbParams = item.params;
+    await callbacks[cb](cbParams);
+  }
+};
+
+callbacks['triggerSequence'] = triggerSequence;
 
 const pingLamp = async (params) => {
   const onTransition = 100;
@@ -117,10 +137,6 @@ const party = async () => {
   }
 
 }
-
-const callbacks = {
-  triggerLamp
-};
 
 const runState = async (entry, stateName) => {
   const states = config.states;
@@ -227,7 +243,32 @@ const init = async (configFilename) => {
           },
           '*': {
             parent: '*',
-            'params': { bulb: 8 }
+            params: { bulb: 8 }
+          },
+          test: {
+            callback: 'triggerSequence',
+            params: {
+              sequence: [
+                {
+                  // will turn on green for light 8
+                  callback: 'triggerLamp',
+                  params: {
+                    on: true,
+                    rgb: { r: 0, g: 255, b: 0 },
+                    brightness: 30,
+                    bulb: 8
+                  }
+                },
+                {
+                  // will turn off the 8 light after 5 seconds
+                  callback: 'triggerLamp',
+                  params: {
+                    delay: 5000,
+                    bulb: 8
+                  }
+                },
+              ]
+            }
           }
         }
       }
